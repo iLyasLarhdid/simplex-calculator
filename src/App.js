@@ -3,8 +3,8 @@ import { Button, Container } from '@mui/material';
 import { useState } from 'react';
 import React from 'react';
 
-const canGo = (row)=>{
-  for(let i=0; i<row.length; i++){
+const canGo = (row,numberOfExes)=>{
+  for(let i=1; i<=numberOfExes; i++){
     if(row[i]<0){
       return true;
     }
@@ -51,8 +51,8 @@ const changeOtherRows = (arr,newPivotRowValues,pivotRow,pivotCol)=>{// newPivotR
   //const myArr = arr.map(row => row.map((v,k)=>-newPivotRowValues[k]*row[pivotCol]+v));
   //arr.map((k,v) => v!==pivotRow && v!==0 ?console.log("true",v,"/",k):console.log("false",v,"/",k));
   
-  const myArr = arr.map((k,v) => v!==pivotRow && v!==0 ? k.map((val,key)=>-newPivotRowValues[key]*k[pivotCol]+val) :k);
-  console.log("my arr",myArr);
+  //here exists an error you need to fix 
+  const myArr = arr.map((k,v) => v!==pivotRow && v!==0 ? k.map((val,key)=>-newPivotRowValues[key]*parseFloat(k[pivotCol])+parseFloat(val)) :k);
   return myArr;
 }
 const calcItteraction = (numbOfExes, arr)=>{
@@ -60,19 +60,20 @@ const calcItteraction = (numbOfExes, arr)=>{
   const pivotColumn = getPivotColumn(arr[1],numbOfExes); // index of the column
   const pivotRow = getPivotRow(arr,arr.map(val=>val[pivotColumn]));
   console.log("pivotRow : ",pivotRow);
-  console.log("pivotCol : ",pivotColumn);
+  console.log("pivotCol : ",pivotColumn,' pivot value :',arr[pivotRow][pivotColumn]);
   //rows other than pivot row are going to stay just like they are
   // then i devide all elemnts (except ones with ZERO) of pivotRow by the arr[pivotColumn][pivotRow]
   const newPivotRow = changeOwnRow(arr[pivotRow],arr[pivotRow][pivotColumn]);
   // every row other that the pivot row will be changed by arr[i] = arr.map(row=>row-arr[pivotRow][pivotColumn]
   arr = arr.map((k,v)=>v===pivotRow ? newPivotRow : k);
   arr = changeOtherRows(arr, newPivotRow,pivotRow,pivotColumn);
+  console.log("my arr",arr);
   return arr;
 }
 
 const calcSymplex = (numberOfExes, arr)=>{
   // repeat while (canGo(row))
-  while(canGo(arr[1])){
+  while(canGo(arr[1],numberOfExes)){
     console.log("//////////////////////////////////////////////////");
     arr = calcItteraction(numberOfExes, arr);
   }
@@ -134,11 +135,10 @@ const calc =(table)=>{
           arr[i][j]=0;
         }
       }
-      //arr[i][j]=0;
     }
   }
   console.log('cccccccccccccc',arr,'--numberOfExes--',numberOfExes,'--numOfConstraints--',numOfConstraints);
-
+  //let art = [["z","x1","x2","e1","e2","e3","results"],[1,-15,-10,0,0,0,0],[0,1,2,1,0,0,24],[0,2,1,0,1,0,45],[0,1,3,0,0,1,30]];
   
   calcSymplex(numberOfExes,arr);
 }
