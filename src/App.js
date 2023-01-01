@@ -1,5 +1,5 @@
 import './App.css';
-import { Button, Container } from '@mui/material';
+import { Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { useState } from 'react';
 import React from 'react';
 
@@ -51,7 +51,6 @@ const changeOtherRows = (arr,newPivotRowValues,pivotRow,pivotCol)=>{// newPivotR
   //const myArr = arr.map(row => row.map((v,k)=>-newPivotRowValues[k]*row[pivotCol]+v));
   //arr.map((k,v) => v!==pivotRow && v!==0 ?console.log("true",v,"/",k):console.log("false",v,"/",k));
   
-  //here exists an error you need to fix 
   const myArr = arr.map((k,v) => v!==pivotRow && v!==0 ? k.map((val,key)=>-newPivotRowValues[key]*parseFloat(k[pivotCol])+parseFloat(val)) :k);
   return myArr;
 }
@@ -78,6 +77,46 @@ const calcSymplex = (numberOfExes, arr)=>{
     arr = calcItteraction(numberOfExes, arr);
   }
   console.log("resultaaaaaaa" ,arr);
+  return arr;
+}
+
+const getResults = (arr, numberOfExes)=>{
+  let results = {};
+  let arrSize = arr[0].length;
+  results['z'] = arr[1][arrSize-1];
+
+  for(let i=1; i<=numberOfExes; i++){//the question you need to ask now is 'if we found 1 should we stop and get the result... or continue looking for other numbers.
+    results[`x${i}`]=0
+    for(let j=1; j<arr.length; j++){
+      console.log('i++++++'+arrSize+'++arrji['+j+']['+i+']++');
+      if(arr[j][i] === 1){
+        results[`x${i}`] = arr[j][arrSize-1];
+        break;
+      }
+    }
+    // if(counter===1){
+    //   if(i<=numberOfExes){//all x's
+    //     results[`x${i}`] = arr[i][arrSize-1];
+    //   }
+    //   else if(i!==arrSize-1){////all e's
+    //     results[`e${i-numberOfExes}`] = arr[i][arrSize-1];
+    //   }
+    // }
+    // else{
+    //   if(i<=numberOfExes){//all x's
+    //     results[`x${i}`] = 0;
+    //   }
+    //   else if(i!==arrSize-1){////all e's
+    //     results[`e${i-numberOfExes}`] = 0;
+    //   }
+    // }
+    console.log(results,'+rrrrrrrrrrrrrrrrrrrrrrrrr+');
+  }
+  for(let i=numberOfExes+1; i<arrSize-1; i++){
+    results[`e${i-numberOfExes}`] = arr[1][i];
+  }
+  
+  return results;
 }
 
 const calc =(table)=>{
@@ -139,8 +178,8 @@ const calc =(table)=>{
   }
   console.log('cccccccccccccc',arr,'--numberOfExes--',numberOfExes,'--numOfConstraints--',numOfConstraints);
   //let art = [["z","x1","x2","e1","e2","e3","results"],[1,-15,-10,0,0,0,0],[0,1,2,1,0,0,24],[0,2,1,0,1,0,45],[0,1,3,0,0,1,30]];
-  
-  calcSymplex(numberOfExes,arr);
+  const result = calcSymplex(numberOfExes,arr);
+  return getResults(result,numberOfExes);
 }
 
 
@@ -150,7 +189,7 @@ function App() {
   const [constraints, setConstraints] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]);
   const [numberOfConstraints, setNumberOfconstraints] = useState([0,0,0,0]);
   const [numberOfVariables, setNumberOfVariables] = useState([0,0,0,0]);
-  
+  const [results, setResults] = useState();
   // const getTableHead = ()=>{
   //   for(let i=0; i<cols; i++){
   //     if(i===0)
@@ -160,6 +199,7 @@ function App() {
       
   //   }
   // }
+
   const setVarNumber=(value)=>{
     let arr = [];
     for(let i=0; i<value; i++){
@@ -174,6 +214,7 @@ function App() {
       setConstraints(old=>[...old,arr]);
     }
     setNumberOfVariables(arr);
+    setResults();
   }
 
   const setConstNumber=(value)=>{
@@ -186,6 +227,7 @@ function App() {
     }
     setConstraints(arr.map(item=>variables.map(i=>0)));
     setNumberOfconstraints(arr);
+    setResults();
   }
   
   return (
@@ -251,8 +293,23 @@ function App() {
           )}
         </div>
         <div>
-          <Button fullWidth variant='contained' onClick={()=>calc([variables,...constraints])}>=</Button>
+          <Button fullWidth variant='contained' onClick={()=>setResults(calc([variables,...constraints]))}>=</Button>
         </div>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Variable</TableCell>
+                <TableCell>Result</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+            {results && Object.keys(results).map(keys=>{
+              return <TableRow><TableCell>{keys}</TableCell><TableCell>{results[keys]}</TableCell></TableRow>
+            })}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Container>
     </div>
   );
