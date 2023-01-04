@@ -86,13 +86,19 @@ const getResults = (arr, numberOfExes)=>{
   results['z'] = arr[1][arrSize-1];
 
   for(let i=1; i<=numberOfExes; i++){//the question you need to ask now is 'if we found 1 should we stop and get the result... or continue looking for other numbers.
-    results[`x${i}`]=0
+    //results[`x${i}`]=0;
+    let shouldAdd = true;
     for(let j=1; j<arr.length; j++){
       console.log('i++++++'+arrSize+'++arrji['+j+']['+i+']++');
       if(arr[j][i] === 1){
         results[`x${i}`] = arr[j][arrSize-1];
-        break;
       }
+      else if(arr[j][i] !== 0){
+        shouldAdd = false;
+      }
+    }
+    if(!shouldAdd){
+      results[`x${i}`]=0;
     }
     // if(counter===1){
     //   if(i<=numberOfExes){//all x's
